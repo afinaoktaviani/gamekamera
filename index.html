@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Review Kelas 8 Semester 1 - SMPN 1 Cipeucang</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js untuk Audio Epik Estetik & Efek Suara Benar/Salah -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- MediaPipe Hands untuk Camera Gesture Recognition -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --forest-dark: #1b3622;
+            --forest-mid: #2e5a36;
+            --leaf-green: #4c8c4a;
+            --ochre-gold: #c8963e;
+            --ochre-light: #e5b963;
+            --earth-brown: #5c3d28;
+            --bark-dark: #3b2516;
+            --stone-gray: #6e736f;
+            --stone-light: #d6dad7;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top, #2e5a36 0%, #1b3622 55%, #122416 100%);
+            color: #f4f1ea;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Animasi Daun & Kunang-kunang Mengambang */
+        @keyframes floatLeaf {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-14px) rotate(8deg); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 18px rgba(200, 150, 62, 0.45); }
+            50% { box-shadow: 0 0 32px rgba(229, 185, 99, 0.85); }
+        }
+
+        @keyframes shakeWrong {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-12px); }
+            40%, 80% { transform: translateX(12px); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            70% { transform: scale(1.06); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-leaf {
+            animation: floatLeaf 5s ease-in-out infinite;
+        }
+
+        .animate-glow {
+            animation: pulseGlow 2.5s infinite;
+        }
+
+        .animate-shake {
+            animation: shakeWrong 0.45s ease-in-out;
+        }
+
+        .animate-pop {
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Panel Tekstur Kayu & Batu Alam */
+        .wood-panel {
+            background: linear-gradient(145deg, rgba(92, 61, 40, 0.92), rgba(59, 37, 22, 0.96));
+            border: 3px solid #c8963e;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), inset 0 2px 6px rgba(255, 235, 190, 0.15);
+        }
+
+        .stone-panel {
+            background: linear-gradient(160deg, rgba(78, 84, 80, 0.92), rgba(49, 54, 51, 0.96));
+            border: 2px solid #9da39e;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .leaf-card {
+            background: linear-gradient(135deg, rgba(46, 90, 54, 0.92), rgba(27, 54, 34, 0.96));
+            border: 2px solid #76b06b;
+            transition: all 0.25s ease;
+        }
+
+        .leaf-card:hover {
+            transform: translateY(-3px);
+            border-color: #e5b963;
+            box-shadow: 0 8px 22px rgba(200, 150, 62, 0.35);
+        }
+
+        /* Mirror video kamera agar natural seperti bercermin */
+        .mirror-cam {
+            transform: scaleX(-1);
+        }
+
+        /* Progress Bar Hold Gesture */
+        .gesture-fill {
+            transition: width 0.08s linear;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative">
+
+    <!-- Dekorasi Latar Tumbuhan & Hewan SVG -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-35">
+        <!-- Sulur Daun Kiri Atas -->
+        <svg class="absolute -top-6 -left-6 w-56 h-56 text-[#4c8c4a] animate-leaf" viewBox="0 0 200 200" fill="currentColor">
+            <path d="M10,10 C60,10 110,45 140,100 C95,95 55,65 10,10 Z"/>
+            <path d="M5,45 C45,55 80,95 95,145 C55,130 25,95 5,45 Z" fill="#c8963e"/>
+            <path d="M55,5 C100,15 145,45 175,85 C135,80 95,55 55,5 Z"/>
+        </svg>
+        <!-- Sulur Daun Kanan Bawah -->
+        <svg class="absolute -bottom-8 -right-8 w-64 h-64 text-[#4c8c4a] animate-leaf" style="animation-delay: 1.5s;" viewBox="0 0 200 200" fill="currentColor">
+            <path d="M190,190 C140,190 90,155 60,100 C105,105 145,135 190,190 Z"/>
+            <path d="M195,155 C155,145 120,105 105,55 C145,70 175,105 195,155 Z" fill="#c8963e"/>
+        </svg>
+        <!-- Siluet Burung Hantu & Rusa Alam -->
+        <svg class="absolute bottom-6 left-6 w-28 h-28 text-[#c8963e] opacity-40" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M50 15 C35 15 25 28 25 45 C25 65 38 82 50 88 C62 82 75 65 75 45 C75 28 65 15 50 15 Z M38 38 A5 5 0 1 1 38 48 A5 5 0 1 1 38 38 Z M62 38 A5 5 0 1 1 62 48 A5 5 0 1 1 62 38 Z M50 50 L45 58 L55 58 Z"/>
+        </svg>
+    </div>
+
+    <!-- HEADER SEKOLAH & IDENTITAS GURU -->
+    <header class="relative z-10 w-full px-4 py-3 bg-[#172b1c]/90 border-b-2 border-[#c8963e] backdrop-blur-md shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Logo SMPN 1 Cipeucang (SVG Rekreasi Presisi dari Lampiran Gambar) -->
+            <div class="flex items-center gap-3">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 drop-shadow-md">
+                    <svg viewBox="0 0 220 240" class="w-full h-full">
+                        <!-- Perisai Biru -->
+                        <path d="M55,12 Q110,25 165,12 Q175,45 208,52 Q195,145 110,222 Q25,145 12,52 Q45,45 55,12 Z" fill="#0095da" stroke="#1a1a1a" stroke-width="5"/>
+                        <!-- Teks SMP NEGERI 1 -->
+                        <text x="110" y="46" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="16" letter-spacing="0.5">SMP</text>
+                        <text x="110" y="64" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="16" letter-spacing="0.5">NEGERI 1</text>
+                        <!-- Globe Hijau -->
+                        <ellipse cx="110" cy="96" rx="34" ry="22" fill="#7ac143" stroke="#1a1a1a" stroke-width="2.5"/>
+                        <path d="M76,96 Q110,104 144,96 M82,85 Q110,91 138,85 M82,107 Q110,113 138,107 M110,74 L110,118 M93,77 Q86,96 93,115 M127,77 Q134,96 127,115" fill="none" stroke="#1a1a1a" stroke-width="1.8"/>
+                        <!-- Sayap Kuning -->
+                        <path d="M98,118 L66,112 Q56,118 65,125 L80,127 Q62,132 72,139 L86,138 Q72,145 84,149 L98,144 Z" fill="#fff200" stroke="#1a1a1a" stroke-width="2"/>
+                        <path d="M122,118 L154,112 Q164,118 155,125 L140,127 Q158,132 148,139 L134,138 Q148,145 136,149 L122,144 Z" fill="#fff200" stroke="#1a1a1a" stroke-width="2"/>
+                        <!-- Obor Merah -->
+                        <rect x="105" y="102" width="10" height="44" rx="2" fill="#ed1c24" stroke="#1a1a1a" stroke-width="1.8"/>
+                        <path d="M110,76 Q118,88 110,98 Q102,88 110,76 Z" fill="#ed1c24" stroke="#1a1a1a" stroke-width="1.8"/>
+                        <!-- Buku Putih -->
+                        <path d="M80,148 Q95,144 110,151 Q125,144 140,148 L143,172 Q125,166 110,174 Q95,166 77,172 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"/>
+                        <line x1="110" y1="151" x2="110" y2="174" stroke="#1a1a1a" stroke-width="2"/>
+                        <!-- Padi Kuning (Kiri) -->
+                        <path d="M44,62 Q38,135 125,186" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+                        <g fill="#fff200" stroke="#1a1a1a" stroke-width="1.5">
+                            <ellipse cx="42" cy="72" rx="4" ry="7" transform="rotate(-30 42 72)"/>
+                            <ellipse cx="40" cy="86" rx="4" ry="7" transform="rotate(-35 40 86)"/>
+                            <ellipse cx="41" cy="100" rx="4" ry="7" transform="rotate(-40 41 100)"/>
+                            <ellipse cx="45" cy="114" rx="4" ry="7" transform="rotate(-45 45 114)"/>
+                            <ellipse cx="52" cy="128" rx="4" ry="7" transform="rotate(-50 52 128)"/>
+                            <ellipse cx="61" cy="141" rx="4" ry="7" transform="rotate(-55 61 141)"/>
+                            <ellipse cx="73" cy="153" rx="4" ry="7" transform="rotate(-60 73 153)"/>
+                            <ellipse cx="87" cy="164" rx="4" ry="7" transform="rotate(-65 87 164)"/>
+                        </g>
+                        <!-- Kapas Hitam-Kuning (Kanan) -->
+                        <path d="M176,62 Q182,135 95,186" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+                        <g stroke="#1a1a1a" stroke-width="1.5">
+                            <circle cx="176" cy="74" r="6" fill="#1a1a1a"/><path d="M170,72 Q176,65 182,72" fill="#fff200"/>
+                            <circle cx="177" cy="90" r="6" fill="#1a1a1a"/><path d="M171,88 Q177,81 183,88" fill="#fff200"/>
+                            <circle cx="175" cy="106" r="6" fill="#1a1a1a"/><path d="M169,104 Q175,97 181,104" fill="#fff200"/>
+                            <circle cx="170" cy="122" r="6" fill="#1a1a1a"/><path d="M164,120 Q170,113 176,120" fill="#fff200"/>
+                            <circle cx="162" cy="138" r="6" fill="#1a1a1a"/><path d="M156,136 Q162,129 168,136" fill="#fff200"/>
+                            <circle cx="151" cy="152" r="6" fill="#1a1a1a"/><path d="M145,150 Q151,143 157,150" fill="#fff200"/>
+                        </g>
+                        <!-- Pita Putih CIPEUCANG -->
+                        <path d="M35,176 L54,182 L50,196 L32,192 L40,184 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"/>
+                        <path d="M185,176 L166,182 L170,196 L188,192 L180,184 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"/>
+                        <path d="M48,178 Q110,202 172,178 L166,198 Q110,220 54,198 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"/>
+                        <text x="110" y="198" text-anchor="middle" fill="#1a1a1a" font-family="Arial, sans-serif" font-weight="900" font-size="13.5" letter-spacing="1">CIPEUCANG</text>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider rounded-full bg-[#c8963e] text-[#1b3622]">SMPN 1 CIPEUCANG</span>
+                        <span class="hidden sm:inline-block px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[#4c8c4a]/40 border border-[#76b06b] text-[#e5b963]">IPA Kelas VIII</span>
+                    </div>
+                    <h1 class="text-lg sm:text-2xl font-bold text-[#f4f1ea] leading-tight mt-0.5">
+                        Game Review Kelas 8 Semester 1
+                    </h1>
+                    <p class="text-xs sm:text-sm text-[#d6dad7]">
+                        Guru Pengampu: <span class="font-bold text-[#e5b963]">Afina Mifta Oktaviani, S.Pd</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Kontrol Musik Epik & Info Sesi -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="btnToggleMusic" onclick="toggleBackgroundMusic()" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5c3d28] hover:bg-[#704b32] border border-[#c8963e] text-xs sm:text-sm font-bold text-[#f4f1ea] transition shadow">
+                    <span id="musicIcon">🎵</span>
+                    <span id="musicLabel" class="hidden sm:inline">Musik Epik: ON</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main class="relative z-10 flex-grow flex items-center justify-center p-3 sm:p-6">
+        
+        <!-- 1. LAYAR MULAI (LOBBY) -->
+        <section id="screenStart" class="w-full max-w-4xl wood-panel rounded-3xl p-6 sm:p-10 text-center animate-pop">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#2e5a36] border border-[#76b06b] text-[#e5b963] text-xs sm:text-sm font-bold mb-4">
+                <span>🌿 Camera Battle Gesture Edition</span>
+                <span>•</span>
+                <span>🦉 Tema Flora & Fauna</span>
+            </div>
+
+            <h2 class="text-3xl sm:text-5xl font-bold text-[#e5b963] drop-shadow mb-3">
+                Arena Tantangan IPA Kelas 8
+            </h2>
+            <p class="text-sm sm:text-base text-[#e6e2d8] max-w-2xl mx-auto mb-6 leading-relaxed">
+                Uji pemahamanmu pada materi <strong>Tata Surya, Perubahan Iklim, Sel, Sistem Organ Manusia</strong> (Pencernaan, Pernapasan, Peredaran Darah, Ekskresi, Koordinasi, Reproduksi) serta <strong>Zat Aditif & Adiktif</strong>!
+            </p>
+
+            <!-- Kartu Panduan Gesture Jari -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div class="leaf-card rounded-2xl p-3 text-center">
+                    <div class="text-3xl mb-1">☝️</div>
+                    <div class="font-display font-bold text-lg text-[#e5b963]">1 Jari</div>
+                    <div class="text-xs text-[#d6dad7]">Pilih Jawaban <span class="font-bold text-white">A</span></div>
+                </div>
+                <div class="leaf-card rounded-2xl p-3 text-center">
+                    <div class="text-3xl mb-1">✌️</div>
+                    <div class="font-display font-bold text-lg text-[#e5b963]">2 Jari</div>
+                    <div class="text-xs text-[#d6dad7]">Pilih Jawaban <span class="font-bold text-white">B</span></div>
+                </div>
+                <div class="leaf-card rounded-2xl p-3 text-center">
+                    <div class="text-3xl mb-1">🤟</div>
+                    <div class="font-display font-bold text-lg text-[#e5b963]">3 Jari</div>
+                    <div class="text-xs text-[#d6dad7]">Pilih Jawaban <span class="font-bold text-white">C</span></div>
+                </div>
+                <div class="leaf-card rounded-2xl p-3 text-center">
+                    <div class="text-3xl mb-1">🖖</div>
+                    <div class="font-display font-bold text-lg text-[#e5b963]">4 Jari</div>
+                    <div class="text-xs text-[#d6dad7]">Pilih Jawaban <span class="font-bold text-white">D</span></div>
+                </div>
+            </div>
+
+            <!-- Info Aturan Main -->
+            <div class="stone-panel rounded-2xl p-4 mb-7 flex flex-wrap justify-around gap-4 text-xs sm:text-sm">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">📚</span>
+                    <span>Bank Soal: <strong class="text-[#e5b963]">35 Soal</strong></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🎲</span>
+                    <span>1 Sesi: <strong class="text-[#e5b963]">15 Soal Acak</strong></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">⏱️</span>
+                    <span>Durasi: <strong class="text-[#e5b963]">10 Detik / Soal</strong></span>
+                </div>
+            </div>
+
+            <!-- Input Nama Siswa -->
+            <div class="max-w-md mx-auto mb-6">
+                <label for="playerName" class="block text-left text-xs font-bold uppercase tracking-wider text-[#e5b963] mb-1.5">
+                    Masukkan Nama & Kelas Siswa:
+                </label>
+                <input type="text" id="playerName" placeholder="Contoh: Rina Sari - VIII A" class="w-full px-4 py-3 rounded-xl bg-[#1b3622] border-2 border-[#76b06b] focus:border-[#e5b963] focus:outline-none text-white placeholder-[#8da391] font-semibold text-sm sm:text-base">
+            </div>
+
+            <!-- Tombol Mulai -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button onclick="initGame(true)" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#4c8c4a] to-[#2e5a36] hover:from-[#5ca359] hover:to-[#3b7044] border-2 border-[#e5b963] text-white font-display font-bold text-lg sm:text-xl shadow-xl animate-glow transition transform hover:scale-105 flex items-center justify-center gap-2">
+                    <span>📷</span>
+                    <span>MULAI BATTLE KAMERA</span>
+                </button>
+                <button onclick="initGame(false)" class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-[#5c3d28] hover:bg-[#6e4a31] border-2 border-[#9da39e] text-[#f4f1ea] font-display font-bold text-base transition">
+                    🖱️ Mode Sentuh / Klik Saja
+                </button>
+            </div>
+        </section>
+
+        <!-- 2. LAYAR PERMAINAN (BATTLE ARENA) -->
+        <section id="screenGame" class="hidden w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            
+            <!-- Kolom Kiri: Kamera Gesture & Avatar Fauna Penjaga (4 Kolom di Desktop) -->
+            <div class="lg:col-span-4 wood-panel rounded-3xl p-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-[#e5b963] flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-ping"></span>
+                        Sensor Gesture Kamera
+                    </span>
+                    <span id="camStatusBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#2e5a36] text-[#a8e6a3] border border-[#76b06b]">
+                        Aktif
+                    </span>
+                </div>
+
+                <!-- Container Video Kamera -->
+                <div class="relative w-full aspect-[4/3] bg-[#142618] rounded-2xl overflow-hidden border-2 border-[#c8963e] shadow-inner">
+                    <video id="webcamVideo" class="w-full h-full object-cover mirror-cam" autoplay playsinline muted></video>
+                    <canvas id="gestureCanvas" class="absolute inset-0 w-full h-full mirror-cam pointer-events-none"></canvas>
+                    
+                    <!-- Indikator Deteksi Jari Real-Time -->
+                    <div class="absolute bottom-2 left-2 right-2 bg-[#1b3622]/90 backdrop-blur-sm border border-[#c8963e] rounded-xl p-2 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span id="detectedFingerEmoji" class="text-2xl">✋</span>
+                            <div>
+                                <div class="text-[11px] text-[#d6dad7]">Terdeteksi:</div>
+                                <div id="detectedFingerText" class="text-xs sm:text-sm font-bold text-[#e5b963]">Tunjukkan 1-4 Jari</div>
+                            </div>
+                        </div>
+                        <div id="detectedOptionBadge" class="w-9 h-9 rounded-lg bg-[#5c3d28] border border-[#c8963e] flex items-center justify-center font-display font-bold text-lg text-white">
+                            -
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar Kunci Jawaban Gesture -->
+                    <div class="absolute top-0 left-0 right-0 h-2 bg-black/50">
+                        <div id="gestureHoldBar" class="h-full bg-gradient-to-r from-[#e5b963] to-[#4c8c4a] gesture-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Maskot Hewan & Tumbuhan Pendamping -->
+                <div class="stone-panel rounded-2xl p-3 flex items-center gap-3">
+                    <div id="mascotAvatar" class="text-4xl bg-[#2e5a36] p-2.5 rounded-2xl border border-[#76b06b]">
+                        🦊
+                    </div>
+                    <div class="text-xs">
+                        <div class="font-bold text-[#e5b963] text-sm" id="hudPlayerName">Siswa SMPN 1 Cipeucang</div>
+                        <p id="mascotSpeech" class="text-[#e6e2d8] mt-0.5 leading-snug">
+                            Acungkan 1, 2, 3, atau 4 jarimu di depan kamera selama 1 detik untuk mengunci jawaban!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Papan Skor & Progres -->
+                <div class="grid grid-cols-2 gap-2.5 text-center">
+                    <div class="bg-[#1b3622] border border-[#76b06b] rounded-2xl p-2.5">
+                        <div class="text-[11px] uppercase text-[#a8c7ad] font-bold">Soal Ke</div>
+                        <div class="font-display text-2xl font-bold text-white"><span id="hudQuestionNum">1</span><span class="text-sm text-[#c8963e]">/15</span></div>
+                    </div>
+                    <div class="bg-[#1b3622] border border-[#c8963e] rounded-2xl p-2.5">
+                        <div class="text-[11px] uppercase text-[#e5b963] font-bold">Skor Battle</div>
+                        <div id="hudScore" class="font-display text-2xl font-bold text-[#e5b963]">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Kartu Soal & Pilihan Ganda (8 Kolom di Desktop) -->
+            <div id="questionCardContainer" class="lg:col-span-8 wood-panel rounded-3xl p-5 sm:p-7 flex flex-col justify-between min-h-[460px]">
+                
+                <!-- Bar Atas: Kategori Materi & Timer 10 Detik -->
+                <div>
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span id="questionCategory" class="px-3.5 py-1 rounded-full text-xs font-bold bg-[#2e5a36] text-[#e5b963] border border-[#76b06b]">
+                            🌱 Materi IPA Kelas 8
+                        </span>
+                        <div class="flex items-center gap-2 bg-[#1b3622] px-3.5 py-1 rounded-full border border-[#c8963e]">
+                            <span class="text-sm">⏳</span>
+                            <span id="timerText" class="font-display font-bold text-lg text-[#e5b963]">10s</span>
+                        </div>
+                    </div>
+
+                    <!-- Bar Timer Visual -->
+                    <div class="w-full h-3 bg-[#1b3622] rounded-full overflow-hidden border border-[#5c3d28] mb-5">
+                        <div id="timerBar" class="h-full bg-gradient-to-r from-[#4c8c4a] via-[#e5b963] to-[#c8963e] transition-all duration-200" style="width: 100%"></div>
+                    </div>
+
+                    <!-- Teks Pertanyaan -->
+                    <div class="bg-[#1b3622]/90 border-2 border-[#76b06b] rounded-2xl p-4 sm:p-6 mb-5 shadow-inner">
+                        <p id="questionText" class="text-base sm:text-xl font-bold text-[#f4f1ea] leading-relaxed">
+                            Memuat pertanyaan...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Pilihan Jawaban A, B, C, D -->
+                <div id="optionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <!-- Diisi via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. LAYAR HASIL AKHIR (VICTORY / SUMMARY) -->
+        <section id="screenResult" class="hidden w-full max-w-3xl wood-panel rounded-3xl p-6 sm:p-10 text-center animate-pop">
+            <div class="text-6xl mb-3" id="resultTrophy">🏆</div>
+            <span class="px-4 py-1 rounded-full bg-[#2e5a36] border border-[#76b06b] text-[#e5b963] text-xs font-bold uppercase tracking-wider">
+                Hasil Evaluasi IPA - SMPN 1 Cipeucang
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-bold text-[#e5b963] mt-2 mb-1" id="resultTitle">
+                Petualangan Selesai!
+            </h2>
+            <p class="text-sm sm:text-base text-[#d6dad7] mb-6" id="resultPlayerInfo">
+                Siswa: -
+            </p>
+
+            <!-- Statistik Nilai -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+                <div class="bg-[#1b3622] border-2 border-[#c8963e] rounded-2xl p-4">
+                    <div class="text-xs text-[#e5b963] font-bold uppercase">Nilai Akhir</div>
+                    <div id="finalScore" class="font-display text-3xl sm:text-4xl font-bold text-white mt-1">100</div>
+                </div>
+                <div class="bg-[#1b3622] border-2 border-[#76b06b] rounded-2xl p-4">
+                    <div class="text-xs text-[#a8e6a3] font-bold uppercase">Benar</div>
+                    <div id="finalCorrect" class="font-display text-3xl sm:text-4xl font-bold text-[#76b06b] mt-1">0</div>
+                </div>
+                <div class="bg-[#1b3622] border-2 border-[#9da39e] rounded-2xl p-4">
+                    <div class="text-xs text-[#d6dad7] font-bold uppercase">Salah</div>
+                    <div id="finalWrong" class="font-display text-3xl sm:text-4xl font-bold text-[#e5b963] mt-1">0</div>
+                </div>
+            </div>
+
+            <!-- Pesan Apresiasi Guru -->
+            <div class="stone-panel rounded-2xl p-4 mb-7 text-sm text-[#f4f1ea]">
+                <p id="teacherFeedback" class="italic leading-relaxed">
+                    "Terus semangat belajar IPA dan jaga kelestarian alam sekitar kita!" — Afina Mifta Oktaviani, S.Pd
+                </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="restartSession()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#4c8c4a] to-[#2e5a36] hover:from-[#5ca359] hover:to-[#3b7044] border-2 border-[#e5b963] text-white font-display font-bold text-lg shadow-lg transition transform hover:scale-105">
+                    🔄 Main Lagi (15 Soal Acak Baru)
+                </button>
+                <button onclick="backToHome()" class="px-6 py-4 rounded-2xl bg-[#5c3d28] hover:bg-[#6e4a31] border-2 border-[#9da39e] text-white font-display font-bold text-base transition">
+                    🏠 Halaman Utama
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- OVERLAY UMPAN BALIK BENAR / SALAH FULLSCREEN -->
+    <div id="feedbackOverlay" class="hidden fixed inset-0 z-50 flex items-center justify-center pointer-events-none bg-black/55 backdrop-blur-xs">
+        <div id="feedbackBox" class="px-10 py-8 rounded-3xl border-4 text-center shadow-2xl transform scale-95 transition-all">
+            <div id="feedbackIcon" class="text-7xl mb-2">✅</div>
+            <div id="feedbackTitle" class="font-display text-4xl sm:text-6xl font-extrabold tracking-wider uppercase">
+                BENAR!
+            </div>
+            <div id="feedbackSub" class="text-base sm:text-lg font-bold mt-2">
+                Luar biasa! +100 Poin
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="relative z-10 text-center py-2.5 px-4 text-xs text-[#a8c7ad] bg-[#142618]/80 border-t border-[#3b2516]">
+        © 2026 SMPN 1 Cipeucang • Media Pembelajaran Interaktif IPA Kelas VIII oleh <span class="text-[#e5b963] font-semibold">Afina Mifta Oktaviani, S.Pd</span>
+    </footer>
+
+    <script>
+        /**
+         * ============================================================================
+         * BANK SOAL LENGKAP (35 SOAL DARI PDF LAMPIRAN + KUNCI JAWABAN RESMI)
+         * ============================================================================
+         */
+        const BANK_SOAL = [
+            // BAGIAN I: BUMI DAN TATA SURYA (1 - 13)
+            {
+                id: 1,
+                kategori: "🌌 Bumi & Tata Surya",
+                pertanyaan: "Perhatikan peristiwa astronomi berikut! (1) Matahari tampak terbit di timur dan terbenam di barat; (2) Venus memiliki fase seperti Bulan; (3) Ditemukannya empat bulan besar mengorbit Jupiter; (4) Bintang tampak berputar mengelilingi Bumi. Fakta yang mendukung teori heliosentris adalah nomor ....",
+                opsi: ["1 dan 2", "1 dan 4", "2 dan 3", "3 dan 4"],
+                jawaban: 2 // C
+            },
+            {
+                id: 2,
+                kategori: "🌌 Bumi & Tata Surya",
+                pertanyaan: "Planet-planet dalam tata surya tetap bergerak pada lintasan orbitnya dan tidak terlempar ke ruang angkasa karena adanya ....",
+                opsi: [
+                    "gaya gravitasi Matahari dan planet yang diimbangi gerak revolusi",
+                    "gaya tolak-menolak medan magnet antarplanet dalam tata surya",
+                    "atmosfer tebal di ruang angkasa yang menahan laju pergerakan planet",
+                    "gaya sentrifugal Matahari yang mendorong planet menjauh secara konstan"
+                ],
+                jawaban: 0 // A
+            },
+            {
+                id: 3,
+                kategori: "🌌 Bumi & Tata Surya",
+                pertanyaan: "Cermati ciri benda langit berikut: (1) Tersusun atas debu dan es membeku; (2) Orbit sangat lonjong (eksentris); (3) Saat mendekati Matahari membentuk kepala dan ekor yang menjauhi Matahari. Benda langit tersebut adalah ....",
+                opsi: ["asteroid", "komet", "meteoroid", "satelit alami"],
+                jawaban: 1 // B
+            },
+            {
+                id: 4,
+                kategori: "🌌 Bumi & Tata Surya",
+                pertanyaan: "Urutan planet dari Matahari: Matahari – [1] – [2] – Bumi – [3] – [4] – Saturnus – Uranus – Neptunus. Kelompok planet inferior (orbitnya di antara Matahari dan Bumi) ditunjukkan oleh nomor ....",
+                opsi: ["[1] dan [2]", "[1] dan [3]", "[2] dan [3]", "[3] dan [4]"],
+                jawaban: 0 // A
+            },
+            {
+                id: 5,
+                kategori: "🌌 Bumi & Tata Surya",
+                pertanyaan: "Seorang pelaut mengamati kapal yang baru datang dari tengah laut menuju pelabuhan. Bagian kapal yang pertama kali terlihat adalah ujung tiang layarnya, barulah badan kapal. Peristiwa ini membuktikan bahwa ....",
+                opsi: [
+                    "permukaan air laut selalu bergelombang tinggi",
+                    "cahaya mengalami pembiasan saat melewati udara di atas laut",
+                    "bentuk permukaan Bumi melengkung atau bulat",
+                    "daya jangkau mata manusia terbatas pada jarak pandang horizontal"
+                ],
+                jawaban: 2 // C
+            },
+            {
+                id: 6,
+                kategori: "🌍 Bumi & Perubahan Iklim",
+                pertanyaan: "Bumi berotasi pada porosnya sekitar 24 jam. Apabila kecepatan rotasi Bumi melambat drastis hingga membutuhkan waktu 1 bulan untuk satu kali putaran, dampak yang paling mengancam kelangsungan hidup manusia adalah ....",
+                opsi: [
+                    "gaya gravitasi Bumi akan menghilang sehingga manusia melayang",
+                    "perbedaan suhu ekstrem antara sisi siang sangat panas dan malam membeku",
+                    "seluruh wilayah di permukaan Bumi akan mengalami hujan es sepanjang tahun",
+                    "fase bulan purnama tidak akan pernah terjadi lagi"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 7,
+                kategori: "🌍 Bumi & Perubahan Iklim",
+                pertanyaan: "Pada bulan Juni posisi Matahari tampak di belahan langit utara, sedangkan pada bulan Desember tampak di belahan langit selatan. Perubahan posisi semu tahunan Matahari ini disebabkan oleh ....",
+                opsi: [
+                    "gerak rotasi Bumi dari arah barat ke timur",
+                    "kemiringan sumbu rotasi Bumi 23,5° saat berevolusi mengelilingi Matahari",
+                    "bentuk orbit Bumi yang berupa lingkaran sempurna terhadap Matahari",
+                    "perubahan kecepatan revolusi Bulan saat mengelilingi Bumi"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 8,
+                kategori: "🌍 Bumi & Perubahan Iklim",
+                pertanyaan: "Perhatikan peristiwa alam berikut: (1) Terjadinya siang dan malam; (2) Gerak semu harian Matahari; (3) Perubahan lama waktu siang dan malam; (4) Pergantian musim di belahan Bumi utara dan selatan. Akibat dari gerak revolusi Bumi ditunjukkan oleh nomor ....",
+                opsi: ["1 dan 2", "1 dan 3", "2 dan 4", "3 dan 4"],
+                jawaban: 3 // D
+            },
+            {
+                id: 9,
+                kategori: "🌌 Bumi & Tata Surya",
+                pertanyaan: "Pada skema gerhana Matahari – Bumi – Bulan, apabila terjadi gerhana bulan sebagian, maka posisi Bulan berada pada ....",
+                opsi: [
+                    "tepat di tengah-tengah daerah umbra (bayangan inti) Bumi",
+                    "sebagian masuk ke daerah umbra dan sebagian lagi di penumbra Bumi",
+                    "seluruhnya berada di daerah penumbra (bayangan kabur) Bumi",
+                    "tepat di antara Matahari dan Bumi dalam satu garis lurus"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 10,
+                kategori: "🌍 Bumi & Perubahan Iklim",
+                pertanyaan: "Pada tanggal 21 Juni, belahan Bumi utara condong ke arah Matahari, sedangkan belahan Bumi selatan menjauhi Matahari. Musim yang sedang berlangsung di Jepang (utara) dan Australia (selatan) berturut-turut adalah ....",
+                opsi: [
+                    "musim panas dan dingin",
+                    "musim dingin dan panas",
+                    "musim semi dan gugur",
+                    "musim gugur dan semi"
+                ],
+                jawaban: 0 // A
+            },
+            {
+                id: 11,
+                kategori: "🌍 Bumi & Perubahan Iklim",
+                pertanyaan: "Kemiringan sumbu Bumi 23,5° membuat posisi relatif belahan Bumi terhadap Matahari selalu berubah sepanjang tahun. Hubungan yang tepat antara posisi Bumi dan perubahan musim adalah ....",
+                opsi: [
+                    "belahan Bumi yang condong ke Matahari menerima sinar lebih lama sehingga mengalami musim panas",
+                    "belahan Bumi yang condong ke Matahari menjauhi sumber panas sehingga mengalami musim dingin",
+                    "saat Bumi di titik terjauh dari Matahari (aphelion), seluruh dunia mengalami musim dingin",
+                    "saat Bumi di titik terdekat dari Matahari (perihelion), seluruh dunia mengalami musim panas"
+                ],
+                jawaban: 0 // A
+            },
+            {
+                id: 12,
+                kategori: "🌍 Bumi & Perubahan Iklim",
+                pertanyaan: "Pada bulan Desember, wilayah Eropa mengalami suhu dingin bersalju, sementara Australia mengalami cuaca panas terik. Penyebab utama perbedaan penerimaan energi Matahari di kedua wilayah tersebut adalah ....",
+                opsi: [
+                    "jarak Australia ke Matahari jauh lebih dekat dibandingkan Eropa",
+                    "sudut datang sinar Matahari di Eropa lebih miring, sedangkan di Australia lebih tegak lurus",
+                    "lapisan ozon di atas benua Australia lebih tipis dibandingkan di atas Eropa",
+                    "arah rotasi Bumi di belahan selatan lebih lambat daripada belahan utara"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 13,
+                kategori: "🌍 Bumi & Perubahan Iklim",
+                pertanyaan: "Seorang siswa di London (51° LU) mencatat pada bulan Juli Matahari terbit pukul 04.50 dan terbenam pukul 21.15. Fenomena lama siang lebih panjang daripada malam terjadi karena ....",
+                opsi: [
+                    "kecepatan rotasi Bumi melambat khusus pada bulan Juli",
+                    "belahan Bumi utara condong ke Matahari sehingga lingkaran penerangan mencakup lebih banyak wilayah utara",
+                    "gaya gravitasi Matahari menarik atmosfer di belahan Bumi utara",
+                    "jarak antara Bumi dan Matahari sedang berada pada titik paling dekat"
+                ],
+                jawaban: 1 // B
+            },
+
+            // BAGIAN II: SEL DAN SISTEM ORGAN MANUSIA (14 - 27)
+            {
+                id: 14,
+                kategori: "🔬 Sel & Organisasi Kehidupan",
+                pertanyaan: "Perhatikan pernyataan mengenai sel: (1) Sel merupakan unit struktural dan fungsional terkecil makhluk hidup; (2) Semua makhluk hidup tersusun atas sel; (3) Sel baru dapat terbentuk secara spontan dari benda mati; (4) Setiap sel berasal dari pembelahan sel sebelumnya. Pernyataan yang TIDAK sesuai teori sel adalah nomor ....",
+                opsi: ["1", "2", "3", "4"],
+                jawaban: 2 // C
+            },
+            {
+                id: 15,
+                kategori: "🌿 Sel Tumbuhan",
+                pertanyaan: "Perhatikan ciri bagian sel tumbuhan: [1] Lapisan terluar kaku pemberi bentuk tetap; [2] Organel hijau tempat fotosintesis; [3] Rongga besar penyimpan cadangan makanan/air; [4] Pusat pengendali aktivitas sel. Nama bagian sel 1, 2, 3, dan 4 berturut-turut adalah ....",
+                opsi: [
+                    "membran sel, mitokondria, lisosom, inti sel",
+                    "dinding sel, kloroplas, vakuola, inti sel",
+                    "dinding sel, ribosom, badan golgi, sitoplasma",
+                    "membran sel, kloroplas, sentrosom, inti sel"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 16,
+                kategori: "🦁 Sel Hewan",
+                pertanyaan: "Perhatikan pernyataan struktur sel: (1) Memiliki dinding sel selulosa; (2) Memiliki sentriol untuk pembelahan sel; (3) Memiliki kloroplas; (4) Memiliki vakuola kecil dan banyak. Ciri khas yang HANYA dimiliki oleh sel hewan ditunjukkan oleh nomor ....",
+                opsi: ["1 dan 2", "1 dan 3", "2 dan 4", "3 dan 4"],
+                jawaban: 2 // C
+            },
+            {
+                id: 17,
+                kategori: "🦴 Sistem Gerak & Organisasi",
+                pertanyaan: "Dalam sistem gerak manusia, penyusunan tingkat organisasi kehidupan dari unit terkecil hingga membentuk sistem organ yang benar adalah ....",
+                opsi: [
+                    "osteosit (sel tulang) → jaringan tulang → tulang paha (organ) → sistem rangka",
+                    "jaringan tulang → tulang paha (organ) → osteosit (sel tulang) → sistem rangka",
+                    "tulang paha (organ) → osteosit (sel tulang) → jaringan tulang → sistem rangka",
+                    "sistem rangka → osteosit (sel tulang) → tulang paha (organ) → jaringan tulang"
+                ],
+                jawaban: 0 // A
+            },
+            {
+                id: 18,
+                kategori: "🔬 Sel & Organisasi Kehidupan",
+                pertanyaan: "Pasangan tingkat organisasi kehidupan dengan contoh yang tepat adalah: (1) Sel – Neuron (sel saraf); (2) Jaringan – Lambung dan usus halus; (3) Organ – Jantung dan paru-paru; (4) Sistem Organ – Epitel pipih selapis. Jawaban yang benar adalah nomor ....",
+                opsi: ["1 dan 2", "1 dan 3", "2 dan 4", "3 dan 4"],
+                jawaban: 1 // B
+            },
+            {
+                id: 19,
+                kategori: "🍎 Sistem Pencernaan",
+                pertanyaan: "Urutan saluran pencernaan: Mulut (1) → Kerongkongan (2) → Lambung (3) → Usus Halus (4) → Usus Besar (5). Organ yang memiliki dinding berlipat (vili) dan berfungsi menyerap sebagian besar sari nutrisi makanan adalah nomor ....",
+                opsi: ["2", "3", "4", "5"],
+                jawaban: 2 // C
+            },
+            {
+                id: 20,
+                kategori: "🫁 Sistem Pernapasan",
+                pertanyaan: "Pada ujung saluran pernapasan di dalam paru-paru terdapat gelembung-gelembung kecil berdinding sangat tipis dan dikelilingi kapiler darah (alveolus). Fungsi utama bagian tersebut adalah ....",
+                opsi: [
+                    "menyaring debu dan kotoran yang masuk bersama udara pernapasan",
+                    "menyesuaikan suhu dan kelembapan udara sebelum masuk ke paru-paru",
+                    "tempat terjadinya pertukaran gas oksigen dan karbon dioksida secara difusi",
+                    "menghasilkan lendir untuk menangkap bakteri penyebab infeksi"
+                ],
+                jawaban: 2 // C
+            },
+            {
+                id: 21,
+                kategori: "🧠 Sistem Koordinasi & Ekskresi",
+                pertanyaan: "Ketika tubuh dehidrasi, darah menjadi lebih pekat. Kondisi ini dideteksi oleh pusat pengaturan di otak yang merangsang rasa haus dan memerintahkan ginjal menyerap kembali lebih banyak air. Bagian otak tersebut adalah ....",
+                opsi: [
+                    "serebelum (otak kecil)",
+                    "hipotalamus",
+                    "lobus oksipitalis",
+                    "medula oblongata"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 22,
+                kategori: "❤️ Sistem Peredaran Darah",
+                pertanyaan: "Cermati karakteristik pembuluh darah: (1) Dinding tebal, kuat, elastis; (2) Letak tersembunyi di dalam tubuh; (3) Aliran darah dari jantung ke seluruh tubuh; (4) Jika terluka darah memancar. Jenis pembuluh darah tersebut adalah ....",
+                opsi: [
+                    "vena (pembuluh balik)",
+                    "arteri (pembuluh nadi)",
+                    "kapiler darah",
+                    "venula"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 23,
+                kategori: "🧬 Sistem Reproduksi",
+                pertanyaan: "Organ reproduksi perempuan: [1] Ovarium, [2] Tuba Falopi, [3] Uterus, [4] Vagina. Bagian yang berfungsi menghasilkan sel telur (ovum) serta hormon estrogen dan progesteron ditunjukkan oleh nomor ....",
+                opsi: ["1", "2", "3", "4"],
+                jawaban: 0 // A
+            },
+            {
+                id: 24,
+                kategori: "🫁 Sistem Pernapasan",
+                pertanyaan: "Penyakit TBC dan influenza mudah menular melalui percikan dahak atau udara. Upaya paling tepat untuk mencegah penularan penyakit pada sistem pernapasan tersebut adalah ....",
+                opsi: [
+                    "mengonsumsi makanan tinggi protein setiap hari tanpa perlu memakai masker",
+                    "menerapkan etika batuk, memakai masker di tempat ramai, dan menjaga ventilasi",
+                    "mengurangi aktivitas olahraga di luar ruangan pada pagi hari",
+                    "mengonsumsi antibiotik secara rutin meskipun tubuh dalam keadaan sehat"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 25,
+                kategori: "🍎 Sistem Pencernaan",
+                pertanyaan: "Andi sering melewatkan sarapan, gemar makanan sangat pedas/asam, dan terlambat makan siang sehingga sering nyeri ulu hati dan mual. Upaya tepat untuk mengatasi sekaligus mencegah gangguan pencernaan Andi adalah ....",
+                opsi: [
+                    "memperbanyak minum minuman bersoda untuk menetralkan asam lambung",
+                    "membiasakan pola makan teratur porsi kecil dan mengurangi makanan pedas/asam",
+                    "langsung tidur telentang sesaat setelah makan dalam porsi besar",
+                    "mengonsumsi obat pencahar setiap kali perut terasa perih"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 26,
+                kategori: "💧 Sistem Ekskresi",
+                pertanyaan: "Ginjal bekerja terus-menerus menyaring zat sisa metabolisme dari darah. Kebiasaan sehari-hari yang paling tepat untuk menjaga kesehatan organ ginjal adalah ....",
+                opsi: [
+                    "menahan buang air kecil saat sedang sibuk bekerja",
+                    "minum air putih yang cukup setiap hari dan membatasi konsumsi garam berlebih",
+                    "mengonsumsi suplemen berenergi tinggi setiap kali merasa lelah",
+                    "memperbanyak konsumsi makanan cepat saji yang tinggi pengawet"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 27,
+                kategori: "❤️ Sistem Peredaran & Ekskresi",
+                pertanyaan: "Pasangan penyakit dan pencegahannya: (1) Anemia – Konsumsi makanan kaya zat besi (bayam, daging); (2) Konstipasi – Kurangi air putih; (3) Batu Ginjal – Menahan buang air kecil; (4) Hipertensi – Kurangi garam & rutin olahraga. Pasangan yang tepat adalah nomor ....",
+                opsi: ["1 dan 2", "1 dan 4", "2 dan 3", "3 dan 4"],
+                jawaban: 1 // B
+            },
+
+            // BAGIAN III: ZAT ADITIF DAN ZAT ADIKTIF (28 - 35)
+            {
+                id: 28,
+                kategori: "🧠 Sistem Koordinasi & Zat Adiktif",
+                pertanyaan: "Penyalahgunaan zat adiktif golongan halusinogen (seperti LSD atau jamur psilocybin) sangat berbahaya bagi sistem saraf pusat. Pengaruh utama zat golongan ini terhadap persepsi pancaindra manusia adalah ....",
+                opsi: [
+                    "menekan kerja sistem saraf sehingga pengguna merasa sangat mengantuk dan tenang",
+                    "memicu sistem saraf pusat bekerja lebih cepat sehingga tubuh terasa berenergi",
+                    "menyebabkan pengguna melihat, mendengar, atau merasakan sesuatu yang tidak nyata",
+                    "menghilangkan rasa nyeri secara total pada jaringan saraf tepi"
+                ],
+                jawaban: 2 // C
+            },
+            {
+                id: 29,
+                kategori: "🧪 Zat Aditif & Kesehatan",
+                pertanyaan: "Produk minuman kemasan menggunakan pemanis buatan (siklamat/aspartam) dan pewarna sintetis kadar tinggi. Perbandingan dampak kesehatan jangka pendek dan jangka panjang jika dikonsumsi berlebihan adalah ....",
+                opsi: [
+                    "jangka pendek gagal ginjal, jangka panjang radang tenggorokan",
+                    "jangka pendek iritasi tenggorokan/mual, jangka panjang risiko kerusakan hati, ginjal, dan kanker",
+                    "jangka pendek diabetes melitus, jangka panjang kantuk sesaat",
+                    "jangka pendek tidak berefek, jangka panjang meningkatkan daya tahan tubuh"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 30,
+                kategori: "🧪 Zat Adiktif & Organ Hati",
+                pertanyaan: "Penyalahgunaan alkohol dan narkotika jangka panjang menimbulkan kerusakan fisiologis serius. Dampak fisiologis yang paling sering terjadi pada organ hati (liver) akibat konsumsi alkohol berlebih dalam waktu lama adalah ....",
+                opsi: [
+                    "pembesaran alveolus paru-paru sehingga pertukaran oksigen terganggu",
+                    "pengerasan dan kerusakan jaringan hati (sirosis hati) sehingga gagal menyaring racun",
+                    "penyempitan pembuluh darah koroner akibat penumpukan plak kalsium",
+                    "pengapuran pada tulang rawan sendi sehingga tubuh sulit digerakkan"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 31,
+                kategori: "🌿 Psikososial & Zat Adiktif",
+                pertanyaan: "Remaja yang terjerumus penyalahgunaan zat adiktif sering menunjukkan perubahan perilaku drastis. Dampak sosial yang paling umum terjadi pada remaja tersebut di lingkungan keluarga dan sekolah adalah ....",
+                opsi: [
+                    "meningkatnya rasa percaya diri saat berdiskusi di depan kelas",
+                    "menarik diri dari pergaulan sehat, sering membolos, dan mudah berbohong",
+                    "menjadi lebih aktif dalam kegiatan organisasi sosial di lingkungan masyarakat",
+                    "memiliki kemampuan manajemen waktu yang lebih baik daripada teman sebayanya"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 32,
+                kategori: "🌿 Dampak Sosial Zat Adiktif",
+                pertanyaan: "Maraknya peredaran narkoba di kalangan remaja tidak hanya merugikan pengguna, tetapi juga berdampak buruk bagi masyarakat. Dampak lingkungan dan sosial yang timbul akibat tingginya angka penyalahgunaan zat adiktif adalah ....",
+                opsi: [
+                    "meningkatnya angka kriminalitas seperti pencurian untuk membeli zat adiktif",
+                    "menurunnya tingkat pengangguran karena munculnya lapangan kerja baru",
+                    "terciptanya lingkungan permukiman yang lebih aman dan kondusif pada malam hari",
+                    "meningkatnya rasa solidaritas antarwarga dalam menjaga keamanan lingkungan"
+                ],
+                jawaban: 0 // A
+            },
+            {
+                id: 33,
+                kategori: "🧪 Zat Aditif Makanan",
+                pertanyaan: "Pada komposisi camilan kemasan tertera: Tepung terigu, minyak nabati, gula, garam, MSG, tartrazin CI 19140, natrium benzoat. Keputusan gaya hidup sehat paling tepat diambil setelah membaca komposisi tersebut adalah ....",
+                opsi: [
+                    "membeli dalam jumlah banyak karena tartrazin merupakan sumber vitamin",
+                    "membatasi konsumsinya atau memilih camilan alternatif tanpa pewarna dan pengawet sintetis",
+                    "mengonsumsi camilan tersebut sebagai pengganti makanan pokok sehari-hari",
+                    "memilih produk tersebut karena natrium benzoat memperkuat sistem kekebalan tubuh"
+                ],
+                jawaban: 1 // B
+            },
+            {
+                id: 34,
+                kategori: "🛡️ Pencegahan Zat Adiktif",
+                pertanyaan: "Saat pulang sekolah, Budi diajak teman sebayanya mencoba merokok elektrik (vape) dan diejek penakut jika menolak. Tindakan asertif yang paling tepat dilakukan Budi untuk menghadapi tekanan teman sebaya tersebut adalah ....",
+                opsi: [
+                    "ikut mencoba satu kali saja agar tetap diterima dan dihargai oleh kelompok teman",
+                    "memarahi teman-temannya dengan kata-kata kasar lalu melapor ke polisi",
+                    "menolak dengan tegas namun sopan sambil memberi alasan kesehatan, lalu segera pergi",
+                    "diam saja dan menerima rokok tersebut tanpa menghisapnya agar tidak dianggap penakut"
+                ],
+                jawaban: 2 // C
+            },
+            {
+                id: 35,
+                kategori: "🛡️ Kampanye Anti-Narkoba",
+                pertanyaan: "Program kampanye pencegahan zat adiktif: (1) Memasang poster hanya di ruang guru; (2) Seminar interaktif menghadirkan mantan pecandu dan dokter; (3) Membentuk kader remaja anti-narkoba dari OSIS; (4) Hukuman fisik berat tanpa pendampingan. Langkah paling efektif adalah nomor ....",
+                opsi: ["1 dan 2", "1 dan 4", "2 dan 3", "3 dan 4"],
+                jawaban: 2 // C
+            }
+        ];
+
+        /**
+         * ============================================================================
+         * VARIABEL STATUS PERMAINAN
+         * ============================================================================
+         */
+        let sessionQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let timeLeft = 10;
+        let timerInterval = null;
+        let isAnsweringLocked = false;
+        let useCameraMode = true;
+        let playerName = "Siswa Hebat";
+
+        // Variabel Gesture Kamera
+        let handsModel = null;
+        let cameraInstance = null;
+        let currentDetectedOption = -1; // 0: A, 1: B, 2: C, 3: D
+        let gestureHoldCounter = 0;
+        const GESTURE_HOLD_TARGET = 18; // ~0.9 - 1.1 detik menahan jari agar tidak salah pencet
+
+        // Variabel Audio Epik Estetik (Tone.js)
+        let isMusicPlaying = false;
+        let bgmLoop = null;
+        let bgmSynth = null;
+        let padSynth = null;
+
+        const ANIMAL_MASCOTS = ["🦊", "🦉", "🦌", "🐢", "🦜", "🦔", "🐿️", "🦋"];
+
+        /**
+         * ============================================================================
+         * SISTEM AUDIO EPIK ESTETIK & EFEK SUARA BENAR / SALAH (TONE.JS)
+         * ============================================================================
+         */
+        async function setupAudio() {
+            if (Tone.context.state !== 'running') {
+                await Tone.start();
+            }
+
+            if (!bgmSynth) {
+                // Reverb luas untuk nuansa alam epik & estetik
+                const reverb = new Tone.Reverb({ decay: 4.5, wet: 0.45 }).toDestination();
+
+                // Pad atmosfer hutan hangat
+                padSynth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 1.5, decay: 1.0, sustain: 0.6, release: 2.5 },
+                    volume: -18
+                }).connect(reverb);
+
+                // Melodi petikan harpa/marimba estetik
+                bgmSynth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.05, decay: 0.4, sustain: 0.2, release: 1.2 },
+                    volume: -14
+                }).connect(reverb);
+
+                // Progresi akor epik petualangan alam (D minor - Bb major - F major - C major)
+                const chords = [
+                    { notes: ["D3", "A3", "F4"], arp: ["D4", "F4", "A4", "D5"] },
+                    { notes: ["Bb2", "F3", "D4"], arp: ["Bb3", "D4", "F4", "Bb4"] },
+                    { notes: ["F3", "C4", "A4"], arp: ["F4", "A4", "C5", "F5"] },
+                    { notes: ["C3", "G3", "E4"], arp: ["C4", "E4", "G4", "E5"] }
+                ];
+
+                let step = 0;
+                bgmLoop = new Tone.Loop((time) => {
+                    const barIndex = Math.floor(step / 4) % chords.length;
+                    const noteIndex = step % 4;
+                    const currentChord = chords[barIndex];
+
+                    if (noteIndex === 0) {
+                        padSynth.triggerAttackRelease(currentChord.notes, "1m", time);
+                    }
+                    bgmSynth.triggerAttackRelease(currentChord.arp[noteIndex], "8n", time);
+                    step++;
+                }, "4n");
+            }
+
+            if (!isMusicPlaying) {
+                Tone.Transport.bpm.value = 92;
+                Tone.Transport.start();
+                bgmLoop.start(0);
+                isMusicPlaying = true;
+                updateMusicButtonUI();
+            }
+        }
+
+        function toggleBackgroundMusic() {
+            if (!bgmLoop) {
+                setupAudio();
+                return;
+            }
+            if (isMusicPlaying) {
+                bgmLoop.stop();
+                isMusicPlaying = false;
+            } else {
+                Tone.Transport.start();
+                bgmLoop.start(0);
+                isMusicPlaying = true;
+            }
+            updateMusicButtonUI();
+        }
+
+        function updateMusicButtonUI() {
+            const icon = document.getElementById("musicIcon");
+            const label = document.getElementById("musicLabel");
+            if (isMusicPlaying) {
+                icon.textContent = "🎵";
+                label.textContent = "Musik Epik: ON";
+            } else {
+                icon.textContent = "🔇";
+                label.textContent = "Musik Epik: OFF";
+            }
+        }
+
+        // Nada Benar (Arpeggio Mayor Cerah & Kemenangan)
+        function playCorrectSound() {
+            try {
+                const synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.02, decay: 0.2, sustain: 0.2, release: 0.6 },
+                    volume: -6
+                }).toDestination();
+
+                const now = Tone.now();
+                synth.triggerAttackRelease("C5", "16n", now);
+                synth.triggerAttackRelease("E5", "16n", now + 0.09);
+                synth.triggerAttackRelease("G5", "16n", now + 0.18);
+                synth.triggerAttackRelease(["C6", "E6"], "4n", now + 0.27);
+            } catch (e) {}
+        }
+
+        // Nada Salah (Buzzer Rendah & Turun)
+        function playWrongSound() {
+            try {
+                const synth = new Tone.Synth({
+                    oscillator: { type: "sawtooth" },
+                    envelope: { attack: 0.02, decay: 0.3, sustain: 0.1, release: 0.4 },
+                    volume: -8
+                }).toDestination();
+
+                const now = Tone.now();
+                synth.triggerAttackRelease("F3", "8n", now);
+                synth.triggerAttackRelease("Db3", "4n", now + 0.18);
+            } catch (e) {}
+        }
+
+        // Nada Tik-Tok Timer Menipis (< 4 detik)
+        function playTickSound() {
+            try {
+                const tick = new Tone.MembraneSynth({
+                    pitchDecay: 0.01,
+                    octaves: 2,
+                    volume: -16
+                }).toDestination();
+                tick.triggerAttackRelease("G4", "32n");
+            } catch (e) {}
+        }
+
+        /**
+         * ============================================================================
+         * DETEKSI GESTURE TANGAN VIA MEDIAPIPE HANDS
+         * ============================================================================
+         */
+        async function startCameraGesture() {
+            const videoEl = document.getElementById("webcamVideo");
+            const canvasEl = document.getElementById("gestureCanvas");
+            const ctx = canvasEl.getContext("2d");
+            const badge = document.getElementById("camStatusBadge");
+
+            try {
+                badge.textContent = "Memuat AI...";
+                handsModel = new Hands({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                });
+
+                handsModel.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.65,
+                    minTrackingConfidence: 0.6
+                });
+
+                handsModel.onResults((results) => {
+                    canvasEl.width = videoEl.videoWidth || 640;
+                    canvasEl.height = videoEl.videoHeight || 480;
+                    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+                    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                        const landmarks = results.multiHandLandmarks[0];
+                        drawHandSkeleton(ctx, landmarks, canvasEl.width, canvasEl.height);
+
+                        const fingerCount = countExtendedFingers(landmarks);
+                        processGestureInput(fingerCount);
+                    } else {
+                        resetGestureHold();
+                    }
+                });
+
+                cameraInstance = new Camera(videoEl, {
+                    onFrame: async () => {
+                        if (handsModel) {
+                            await handsModel.send({ image: videoEl });
+                        }
+                    },
+                    width: 640,
+                    height: 480
+                });
+
+                await cameraInstance.start();
+                badge.textContent = "Kamera Aktif";
+                badge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#2e5a36] text-[#a8e6a3] border border-[#76b06b]";
+            } catch (err) {
+                console.warn("Kamera tidak tersedia, beralih ke mode sentuh:", err);
+                badge.textContent = "Mode Sentuh";
+                badge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#5c3d28] text-[#e5b963] border border-[#c8963e]";
+                document.getElementById("detectedFingerText").textContent = "Klik/Tap Pilihan";
+            }
+        }
+
+        // Menggambar titik sendi tangan bertema hijau & emas
+        function drawHandSkeleton(ctx, landmarks, w, h) {
+            ctx.fillStyle = "#e5b963";
+            ctx.strokeStyle = "#76b06b";
+            ctx.lineWidth = 3;
+
+            const connections = [
+                [0,1],[1,2],[2,3],[3,4],
+                [0,5],[5,6],[6,7],[7,8],
+                [5,9],[9,10],[10,11],[11,12],
+                [9,13],[13,14],[14,15],[15,16],
+                [13,17],[17,18],[18,19],[19,20],[0,17]
+            ];
+
+            connections.forEach(([i, j]) => {
+                ctx.beginPath();
+                ctx.moveTo(landmarks[i].x * w, landmarks[i].y * h);
+                ctx.lineTo(landmarks[j].x * w, landmarks[j].y * h);
+                ctx.stroke();
+            });
+
+            landmarks.forEach((pt) => {
+                ctx.beginPath();
+                ctx.arc(pt.x * w, pt.y * h, 5, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        }
+
+        // Menghitung jumlah jari terangkat (Telunjuk, Tengah, Manis, Kelingking)
+        function countExtendedFingers(lm) {
+            let count = 0;
+            // Telunjuk (tip 8 vs pip 6)
+            if (lm[8].y < lm[6].y - 0.03) count++;
+            // Tengah (tip 12 vs pip 10)
+            if (lm[12].y < lm[10].y - 0.03) count++;
+            // Manis (tip 16 vs pip 14)
+            if (lm[16].y < lm[14].y - 0.03) count++;
+            // Kelingking (tip 20 vs pip 18)
+            if (lm[20].y < lm[18].y - 0.03) count++;
+
+            // Jika hanya jempol yang terangkat dan 4 jari lain menekuk, anggap 1 jari
+            if (count === 0) {
+                const thumbExtended = Math.abs(lm[4].x - lm[2].x) > 0.08 && lm[4].y < lm[3].y;
+                if (thumbExtended) count = 1;
+            }
+            return count;
+        }
+
+        function processGestureInput(fingerCount) {
+            const emojiEl = document.getElementById("detectedFingerEmoji");
+            const textEl = document.getElementById("detectedFingerText");
+            const optBadge = document.getElementById("detectedOptionBadge");
+            const holdBar = document.getElementById("gestureHoldBar");
+
+            const mapInfo = {
+                1: { emoji: "☝️", label: "1 Jari (Opsi A)", opt: "A", idx: 0 },
+                2: { emoji: "✌️", label: "2 Jari (Opsi B)", opt: "B", idx: 1 },
+                3: { emoji: "🤟", label: "3 Jari (Opsi C)", opt: "C", idx: 2 },
+                4: { emoji: "🖖", label: "4 Jari (Opsi D)", opt: "D", idx: 3 }
+            };
+
+            if (mapInfo[fingerCount]) {
+                const info = mapInfo[fingerCount];
+                emojiEl.textContent = info.emoji;
+                textEl.textContent = info.label;
+                optBadge.textContent = info.opt;
+                highlightOptionCard(info.idx);
+
+                if (isAnsweringLocked) return;
+
+                if (currentDetectedOption === info.idx) {
+                    gestureHoldCounter++;
+                    const pct = Math.min(100, (gestureHoldCounter / GESTURE_HOLD_TARGET) * 100);
+                    holdBar.style.width = `${pct}%`;
+
+                    if (gestureHoldCounter >= GESTURE_HOLD_TARGET) {
+                        gestureHoldCounter = 0;
+                        holdBar.style.width = "0%";
+                        submitAnswer(info.idx);
+                    }
+                } else {
+                    currentDetectedOption = info.idx;
+                    gestureHoldCounter = 1;
+                    holdBar.style.width = "5%";
+                }
+            } else {
+                resetGestureHold();
+            }
+        }
+
+        function resetGestureHold() {
+            currentDetectedOption = -1;
+            gestureHoldCounter = 0;
+            document.getElementById("detectedFingerEmoji").textContent = "✋";
+            document.getElementById("detectedFingerText").textContent = "Tunjukkan 1-4 Jari";
+            document.getElementById("detectedOptionBadge").textContent = "-";
+            document.getElementById("gestureHoldBar").style.width = "0%";
+            highlightOptionCard(-1);
+        }
+
+        function highlightOptionCard(idx) {
+            const buttons = document.querySelectorAll(".option-btn");
+            buttons.forEach((btn, i) => {
+                if (i === idx && !isAnsweringLocked) {
+                    btn.classList.add("ring-4", "ring-[#e5b963]", "scale-[1.02]");
+                } else {
+                    btn.classList.remove("ring-4", "ring-[#e5b963]", "scale-[1.02]");
+                }
+            });
+        }
+
+        /**
+         * ============================================================================
+         * ALUR PERMAINAN (ACAK 15 SOAL DARI 35 BANK SOAL, TIMER 10 DETIK)
+         * ============================================================================
+         */
+        function shuffleArray(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        async function initGame(enableCam) {
+            const inputName = document.getElementById("playerName").value.trim();
+            playerName = inputName ? inputName : "Siswa Kelas VIII - SMPN 1 Cipeucang";
+            useCameraMode = enableCam;
+
+            // Mulai musik epik estetik
+            await setupAudio();
+
+            // Pindah layar
+            document.getElementById("screenStart").classList.add("hidden");
+            document.getElementById("screenResult").classList.add("hidden");
+            document.getElementById("screenGame").classList.remove("hidden");
+
+            document.getElementById("hudPlayerName").textContent = playerName;
+
+            if (useCameraMode) {
+                startCameraGesture();
+            } else {
+                document.getElementById("camStatusBadge").textContent = "Mode Sentuh";
+                document.getElementById("detectedFingerText").textContent = "Klik Jawaban";
+            }
+
+            startNewSession();
+        }
+
+        function startNewSession() {
+            // Ambil 15 soal secara acak dari 35 soal
+            sessionQuestions = shuffleArray(BANK_SOAL).slice(0, 15);
+            currentIndex = 0;
+            score = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            updateHUD();
+            loadQuestion();
+        }
+
+        function restartSession() {
+            document.getElementById("screenResult").classList.add("hidden");
+            document.getElementById("screenGame").classList.remove("hidden");
+            startNewSession();
+        }
+
+        function backToHome() {
+            clearInterval(timerInterval);
+            document.getElementById("screenGame").classList.add("hidden");
+            document.getElementById("screenResult").classList.add("hidden");
+            document.getElementById("screenStart").classList.remove("hidden");
+        }
+
+        function updateHUD() {
+            document.getElementById("hudQuestionNum").textContent = currentIndex + 1;
+            document.getElementById("hudScore").textContent = score;
+        }
+
+        function loadQuestion() {
+            isAnsweringLocked = false;
+            resetGestureHold();
+            updateHUD();
+
+            // Ganti maskot hewan setiap soal
+            const mascot = ANIMAL_MASCOTS[currentIndex % ANIMAL_MASCOTS.length];
+            document.getElementById("mascotAvatar").textContent = mascot;
+
+            const q = sessionQuestions[currentIndex];
+            document.getElementById("questionCategory").textContent = q.kategori;
+            document.getElementById("questionText").textContent = `${currentIndex + 1}. ${q.pertanyaan}`;
+
+            const labels = ["A", "B", "C", "D"];
+            const fingerEmojis = ["☝️", "✌️", "🤟", "🖖"];
+            const grid = document.getElementById("optionsGrid");
+            grid.innerHTML = "";
+
+            q.opsi.forEach((teksOpsi, index) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.onclick = () => submitAnswer(index);
+                btn.className = "option-btn leaf-card rounded-2xl p-4 text-left flex items-start gap-3.5 cursor-pointer group focus:outline-none";
+                btn.innerHTML = `
+                    <div class="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-[#5c3d28] border-2 border-[#c8963e] text-[#e5b963] font-display font-bold text-lg flex-shrink-0 group-hover:bg-[#c8963e] group-hover:text-[#1b3622] transition">
+                        <span>${labels[index]}</span>
+                    </div>
+                    <div class="flex-grow">
+                        <div class="text-[11px] font-bold text-[#a8e6a3] mb-0.5 flex items-center gap-1">
+                            <span>${fingerEmojis[index]}</span>
+                            <span>${index + 1} Jari</span>
+                        </div>
+                        <div class="text-sm sm:text-base font-semibold text-[#f4f1ea] leading-snug">
+                            ${teksOpsi}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(btn);
+            });
+
+            startQuestionTimer();
+        }
+
+        function startQuestionTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 10.0;
+            const timerText = document.getElementById("timerText");
+            const timerBar = document.getElementById("timerBar");
+            let lastWholeSecond = 10;
+
+            timerText.textContent = "10s";
+            timerBar.style.width = "100%";
+            timerBar.className = "h-full bg-gradient-to-r from-[#4c8c4a] via-[#e5b963] to-[#c8963e] transition-all duration-100";
+
+            timerInterval = setInterval(() => {
+                if (isAnsweringLocked) return;
+
+                timeLeft -= 0.1;
+                const ceilSec = Math.max(0, Math.ceil(timeLeft));
+                timerText.textContent = `${ceilSec}s`;
+
+                const pct = Math.max(0, (timeLeft / 10.0) * 100);
+                timerBar.style.width = `${pct}%`;
+
+                // Peringatan visual & suara detik-detik terakhir
+                if (ceilSec <= 3 && ceilSec > 0 && ceilSec !== lastWholeSecond) {
+                    lastWholeSecond = ceilSec;
+                    timerBar.className = "h-full bg-gradient-to-r from-[#b84a39] via-[#c8963e] to-[#e5b963] transition-all duration-100";
+                    playTickSound();
+                }
+
+                // Waktu habis (otomatis dianggap salah)
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitAnswer(-1, true);
+                }
+            }, 100);
+        }
+
+        /**
+         * ============================================================================
+         * EVALUASI JAWABAN, LAYAR UMPAN BALIK "BENAR" / "SALAH", DAN SKOR AKHIR
+         * ============================================================================
+         */
+        function submitAnswer(selectedIndex, isTimeout = false) {
+            if (isAnsweringLocked) return;
+            isAnsweringLocked = true;
+            clearInterval(timerInterval);
+
+            const q = sessionQuestions[currentIndex];
+            const isCorrect = selectedIndex === q.jawaban;
+            const labels = ["A", "B", "C", "D"];
+
+            // Sorot tombol jawaban benar & salah pada kartu soal
+            const buttons = document.querySelectorAll(".option-btn");
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === q.jawaban) {
+                    btn.classList.add("!bg-[#2e5a36]", "!border-[#a8e6a3]", "ring-4", "ring-[#76b06b]");
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.add("!bg-[#5c2824]", "!border-[#e07a5f]", "animate-shake");
+                } else {
+                    btn.classList.add("opacity-60");
+                }
+            });
+
+            // Tampilkan Overlay Layar Besar "BENAR!" atau "SALAH!" dengan Nada Sesuai
+            const overlay = document.getElementById("feedbackOverlay");
+            const box = document.getElementById("feedbackBox");
+            const icon = document.getElementById("feedbackIcon");
+            const title = document.getElementById("feedbackTitle");
+            const sub = document.getElementById("feedbackSub");
+            const mascotSpeech = document.getElementById("mascotSpeech");
+
+            overlay.classList.remove("hidden");
+
+            if (isCorrect) {
+                correctCount++;
+                const timeBonus = Math.round(timeLeft * 5);
+                const earned = 100 + timeBonus;
+                score += earned;
+                updateHUD();
+
+                playCorrectSound();
+
+                box.className = "px-10 py-8 rounded-3xl border-4 border-[#a8e6a3] bg-gradient-to-br from-[#2e5a36] to-[#1b3622] text-center shadow-2xl animate-pop";
+                icon.textContent = "🌿✨";
+                title.textContent = "BENAR!";
+                title.className = "font-display text-4xl sm:text-6xl font-extrabold tracking-wider uppercase text-[#a8e6a3] drop-shadow";
+                sub.textContent = `Hebat! +${earned} Poin (Bonus Kecepatan +${timeBonus})`;
+                sub.className = "text-base sm:text-lg font-bold mt-2 text-[#e5b963]";
+                mascotSpeech.textContent = "Luar biasa! Jawabanmu tepat sasaran!";
+            } else {
+                wrongCount++;
+                playWrongSound();
+
+                box.className = "px-10 py-8 rounded-3xl border-4 border-[#c8963e] bg-gradient-to-br from-[#5c3d28] to-[#3b2516] text-center shadow-2xl animate-shake";
+                icon.textContent = isTimeout ? "⏳🍂" : "❌🍂";
+                title.textContent = "SALAH!";
+                title.className = "font-display text-4xl sm:text-6xl font-extrabold tracking-wider uppercase text-[#f28482] drop-shadow";
+                sub.textContent = isTimeout
+                    ? `Waktu Habis! Jawaban benar: ${labels[q.jawaban]}`
+                    : `Kurang tepat! Jawaban benar: ${labels[q.jawaban]}`;
+                sub.className = "text-base sm:text-lg font-bold mt-2 text-[#e5b963]";
+                mascotSpeech.textContent = `Tetap semangat! Kunci jawabannya adalah ${labels[q.jawaban]}.`;
+            }
+
+            // Lanjut ke soal berikutnya atau tampilkan hasil akhir setelah 1.8 detik
+            setTimeout(() => {
+                overlay.classList.add("hidden");
+                currentIndex++;
+                if (currentIndex < sessionQuestions.length) {
+                    loadQuestion();
+                } else {
+                    showFinalResult();
+                }
+            }, 1800);
+        }
+
+        function showFinalResult() {
+            clearInterval(timerInterval);
+            document.getElementById("screenGame").classList.add("hidden");
+            document.getElementById("screenResult").classList.remove("hidden");
+
+            const nilaiPersen = Math.round((correctCount / sessionQuestions.length) * 100);
+            document.getElementById("resultPlayerInfo").textContent = `Peserta: ${playerName} • Total Skor Battle: ${score} Poin`;
+            document.getElementById("finalScore").textContent = nilaiPersen;
+            document.getElementById("finalCorrect").textContent = `${correctCount}/15`;
+            document.getElementById("finalWrong").textContent = `${wrongCount}/15`;
+
+            const trophyEl = document.getElementById("resultTrophy");
+            const titleEl = document.getElementById("resultTitle");
+            const feedbackEl = document.getElementById("teacherFeedback");
+
+            if (nilaiPersen >= 85) {
+                trophyEl.textContent = "🏆🌿";
+                titleEl.textContent = "Sangat Memuaskan! Juara Rimba IPA!";
+                feedbackEl.textContent = `"Luar biasa ${playerName}! Penguasaan materi IPA Semester 1 kamu sangat matang. Pertahankan prestasimu!" — Afina Mifta Oktaviani, S.Pd`;
+                playCorrectSound();
+            } else if (nilaiPersen >= 70) {
+                trophyEl.textContent = "🥈🦉";
+                titleEl.textContent = "Bagus Sekali! Penjelajah Tangguh!";
+                feedbackEl.textContent = `"Kerja bagus ${playerName}! Kamu sudah memahami sebagian besar materi. Terus berlatih agar semakin sempurna!" — Afina Mifta Oktaviani, S.Pd`;
+                playCorrectSound();
+            } else {
+                trophyEl.textContent = "🌱🦌";
+                titleEl.textContent = "Terus Berlatih & Jangan Menyerah!";
+                feedbackEl.textContent = `"Tetap semangat ${playerName}! Ayo ulangi sesi permainan untuk melatih kembali pemahamanmu pada soal-soal acak berikutnya!" — Afina Mifta Oktaviani, S.Pd`;
+            }
+        }
+    </script>
+</body>
+</html>
